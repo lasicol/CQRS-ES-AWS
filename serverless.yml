@@ -1,0 +1,30 @@
+service: 'my-baremetal-project'
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+package:
+   individually: true
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+# functions
+functions:
+  commandHandler:
+    handler: src/lambda/command.handler/index.handler
+    events:
+      - http:
+          method: ANY
+          path: product/
+      - http:
+          method: ANY
+          path: 'product_category/'
+  helloHandler:
+    handler: src/lambda/hello-world/hello.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+  readStreamHandler:
+    handler: src/lambda/read.stream/index.handler
+

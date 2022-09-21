@@ -1,0 +1,8 @@
+.serverless
+dist
+node_modules
+
+infrastracture/.terraform
+infrastracture/terraform.tfstate
+infrastracture/terraform.tfstate.backup
+

@@ -1,0 +1,19 @@
+{
+  "name": "cqrs-lambda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.104",
+    "esbuild": "^0.15.8",
+    "serverless-esbuild": "^1.32.8",
+    "serverless-offline": "^10.1.0",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "aws-lambda": "^1.0.7"
+  },
+  "scripts": {
+    "serverless": "serverless"
+  }
+}

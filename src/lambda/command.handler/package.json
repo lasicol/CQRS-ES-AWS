@@ -1,0 +1,16 @@
+{
+  "name": "command.handler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4",
+    "typescript": "^4.8.3"
+  },
+  "scripts": {
+    "build": "tsc && cp -rf node_modules ../dist/command.handler"
+  }
+}
