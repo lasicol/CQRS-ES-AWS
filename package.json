@@ -14,6 +14,6 @@
     "aws-lambda": "^1.0.7"
   },
   "scripts": {
-    "serverless": "serverless"
+    "tf:apply": "npx serverless package && cd infrastracture && terraform apply && cd -"
   }
 }
