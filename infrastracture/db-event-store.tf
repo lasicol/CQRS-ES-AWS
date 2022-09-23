@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "event_store" {
-  name         = var.dynamoDbTableName
+  name         = var.dynamoDbEventStoreTableName
   billing_mode = "PAY_PER_REQUEST"
 
   hash_key  = "eventId"
@@ -34,26 +34,26 @@ resource "aws_dynamodb_table" "event_store" {
   
 }
 
-resource "aws_sns_topic" "new_event" {
-  name                        = "blaszewski-new_event.fifo"
+resource "aws_sns_topic" "category_events" {
+  name                        = "blaszewski-category_events.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
 }
 
-resource "aws_sqs_queue" "queue1" {
-  name                        = "blaszewski-sqs1.fifo"
+resource "aws_sqs_queue" "category_queue" {
+  name                        = "blaszewski-category_queue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
 }
 
 resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
-  topic_arn = aws_sns_topic.new_event.arn
+  topic_arn = aws_sns_topic.category_events.arn
   protocol  = "sqs"
-  endpoint  = aws_sqs_queue.queue1.arn
+  endpoint  = aws_sqs_queue.category_queue.arn
 }
 
-resource "aws_sqs_queue_policy" "queue1_policy" {
-    queue_url = "${aws_sqs_queue.queue1.id}"
+resource "aws_sqs_queue_policy" "category_queue_policy" {
+    queue_url = "${aws_sqs_queue.category_queue.id}"
 
     policy = <<POLICY
 {
@@ -65,10 +65,10 @@ resource "aws_sqs_queue_policy" "queue1_policy" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "sqs:SendMessage",
-      "Resource": "${aws_sqs_queue.queue1.arn}",
+      "Resource": "${aws_sqs_queue.category_queue.arn}",
       "Condition": {
         "ArnEquals": {
-          "aws:SourceArn": "${aws_sns_topic.new_event.arn}"
+          "aws:SourceArn": "${aws_sns_topic.category_events.arn}"
         }
       }
     }

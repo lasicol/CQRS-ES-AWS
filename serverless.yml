@@ -14,4 +14,8 @@ functions:
     handler: src/lambda/command.handler/index.handler
   readStreamHandler:
     handler: src/lambda/read.stream/index.handler
+  catReadModelHandler:
+    handler: src/lambda/category.read.model/index.handler
+  queryCategoryHandler:
+    handler: src/lambda/query.category.handler/index.handler
 

@@ -7,7 +7,11 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "dynamoDbTableName" {
+variable "dynamoDbEventStoreTableName" {
   type    = string
   default = "blaszewski-EventStore"
+}
+variable "dynamoDbCoreTableName" {
+  type    = string
+  default = "blaszewski-Core"
 }
