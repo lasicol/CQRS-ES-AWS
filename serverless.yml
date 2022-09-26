@@ -1,4 +1,4 @@
-service: 'my-baremetal-project'
+service: 'cqrs-es-functions'
 plugins:
   - serverless-esbuild
   - serverless-offline

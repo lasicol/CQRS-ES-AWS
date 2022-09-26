@@ -30,10 +30,14 @@ exports.handler = (event: DynamoDBStreamEvent, context: any, callback: any) => {
       Subject: message.eventId,
       Message: JSON.stringify(message),
       MessageGroupId: "event",
+      MessageAttributes: {
+        aggregateType: {
+          DataType: "String",
+          StringValue: message.aggregateType,
+        },
+      },
       TopicArn:
-        image.eventType === EEventType.AddProductCategory
-          ? "arn:aws:sns:us-east-1:890769921003:blaszewski-category_events.fifo"
-          : "arn:aws:sns:us-east-1:890769921003:blaszewski-product_events.fifo",
+        "arn:aws:sns:us-east-1:890769921003:blaszewski-category_events.fifo",
     };
     sns.publish(params, function (err: any, data: any) {
       if (err) {

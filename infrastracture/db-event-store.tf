@@ -50,6 +50,11 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
   topic_arn = aws_sns_topic.category_events.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.category_queue.arn
+  filter_policy = <<POLICY
+  {
+   "aggregateType": ["Category"]
+  }
+  POLICY
 }
 
 resource "aws_sqs_queue_policy" "category_queue_policy" {

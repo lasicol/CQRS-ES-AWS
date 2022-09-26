@@ -1,10 +1,5 @@
 // Lambda function code
-import { Context, APIGatewayProxyCallback, APIGatewayEvent } from "aws-lambda";
-import {
-  AddProductCategoryPayload,
-  EEventType,
-  IEvent,
-} from "../../libs/event.types";
+import { APIGatewayEvent } from "aws-lambda";
 import AWS from "aws-sdk";
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -17,7 +12,7 @@ exports.handler = async (event: APIGatewayEvent) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      resp
+      resp,
     }),
   };
 };
@@ -33,6 +28,6 @@ async function getCategories() {
     console.log("Success - item added or updated", data);
     return data.Items;
   } catch (err) {
-    console.log("Error", err.stack);
+    if (err instanceof Error) console.log("Error", err.stack);
   }
 }
