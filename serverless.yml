@@ -16,6 +16,10 @@ functions:
     handler: src/lambda/read.stream/index.handler
   catReadModelHandler:
     handler: src/lambda/category.read.model/index.handler
+  prodReadModelHandler:
+    handler: src/lambda/product.read.model/index.handler
   queryCategoryHandler:
     handler: src/lambda/query.category.handler/index.handler
+  queryProductHandler:
+    handler: src/lambda/query.product.handler/index.handler
 

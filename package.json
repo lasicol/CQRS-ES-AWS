@@ -4,7 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@aws-sdk/credential-provider-node": "^3.180.0",
+    "@opensearch-project/opensearch": "^2.0.0",
     "@types/aws-lambda": "^8.10.104",
+    "@types/aws4": "^1.11.2",
+    "aws4": "^1.11.0",
     "esbuild": "^0.15.8",
     "serverless-esbuild": "^1.32.8",
     "serverless-offline": "^10.1.0",

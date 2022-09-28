@@ -34,8 +34,8 @@ resource "aws_dynamodb_table" "event_store" {
   
 }
 
-resource "aws_sns_topic" "category_events" {
-  name                        = "blaszewski-category_events.fifo"
+resource "aws_sns_topic" "topic_events" {
+  name                        = "blaszewski-topic_events.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
 }
@@ -45,9 +45,14 @@ resource "aws_sqs_queue" "category_queue" {
   fifo_queue                  = true
   content_based_deduplication = true
 }
+resource "aws_sqs_queue" "product_queue" {
+  name                        = "blaszewski-product_queue.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
+}
 
-resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
-  topic_arn = aws_sns_topic.category_events.arn
+resource "aws_sns_topic_subscription" "category_sqs_subscription" {
+  topic_arn = aws_sns_topic.topic_events.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.category_queue.arn
   filter_policy = <<POLICY
@@ -56,8 +61,18 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
   }
   POLICY
 }
+resource "aws_sns_topic_subscription" "product_sqs_subscription" {
+  topic_arn = aws_sns_topic.topic_events.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.product_queue.arn
+  filter_policy = <<POLICY
+  {
+   "aggregateType": ["Product"]
+  }
+  POLICY
+}
 
-resource "aws_sqs_queue_policy" "category_queue_policy" {
+resource "aws_sqs_queue_policy" "sqs_sns_category_queue_policy" {
     queue_url = "${aws_sqs_queue.category_queue.id}"
 
     policy = <<POLICY
@@ -73,7 +88,31 @@ resource "aws_sqs_queue_policy" "category_queue_policy" {
       "Resource": "${aws_sqs_queue.category_queue.arn}",
       "Condition": {
         "ArnEquals": {
-          "aws:SourceArn": "${aws_sns_topic.category_events.arn}"
+          "aws:SourceArn": "${aws_sns_topic.topic_events.arn}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+resource "aws_sqs_queue_policy" "sqs_sns_product_queue_policy" {
+    queue_url = "${aws_sqs_queue.product_queue.id}"
+
+    policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "sqspolicy",
+  "Statement": [
+    {
+      "Sid": "First",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sqs:SendMessage",
+      "Resource": "${aws_sqs_queue.product_queue.arn}",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "${aws_sns_topic.topic_events.arn}"
         }
       }
     }
