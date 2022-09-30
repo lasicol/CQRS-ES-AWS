@@ -7,19 +7,53 @@ import { Client, Connection } from "@opensearch-project/opensearch";
 import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import aws4, { Credentials } from "aws4";
 
+type QueryParams = {
+  query: string | null;
+  price: null | any;
+  color: string | null;
+};
+
 exports.handler = async (event: APIGatewayEvent) => {
   console.log("Event: ", event);
-  const resp = await getProducts(event.queryStringParameters);
+  const params = parseParams(event.queryStringParameters);
+  const resp = await getProducts(params);
   return {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      resp,
+      ...resp,
     }),
   };
 };
+
+function parseParams(params: APIGatewayProxyEventQueryStringParameters | null) {
+  if (!params) return null;
+  return Object.entries(params).reduce(
+    (acc, cur) => {
+      console.log(cur);
+
+      const [key, value] = cur;
+      if (key.includes("price")) {
+        const filterKey = key?.split("[").pop()?.slice(0, -1);
+        if (filterKey) {
+          if (!acc.price) acc.price = {};
+
+          acc.price[filterKey] = value;
+        }
+      }
+      if (key === "color" && value) {
+        acc.color = value;
+      }
+      if (key === "query" && value) {
+        acc.query = value;
+      }
+      return acc;
+    },
+    { query: null, price: null, color: null } as QueryParams
+  );
+}
 
 var host =
   "https://search-product-search-gmhenolbzxybgtwgkm6qi5v6u4.us-east-1.es.amazonaws.com"; // e.g. https://my-domain.region.es.amazonaws.com
@@ -49,49 +83,54 @@ const getClient = async () => {
   });
 };
 
-function getQueryObj(params: APIGatewayProxyEventQueryStringParameters | null) {
+function getQueryObj(params: QueryParams | null) {
   let query;
+  const must = [];
   if (params?.query) {
-    query = {
-      query: {
-        "multi_match": {
-            "query": params.query,
-            "fields": [
-              "name",
-              "description"
-            ]
-          }
+    must.push({
+      query_string: {
+        query: `*${params.query}*`,
+        fields: ["name", "description"],
       },
-    };
-  } else {
-    query = {
-      query: {
-        match_all: {},
-      },
-    };
+    });
   }
+  if (params?.price) {
+    must.push({ range: { price: params.price } });
+  }
+  const filter = params?.color ? { term: { color: params.color } } : undefined;
 
-  console.log(query);
+  query = {
+    query: {
+      bool: {
+        must,
+        filter,
+      },
+    },
+  };
+  //   else {
+  //     query = {
+  //       query: {
+  //         match_all: {},
+  //       },
+  //     };
+  //   }
 
   return query;
 }
 
-async function getProducts(params: APIGatewayProxyEventQueryStringParameters | null) {
+async function getProducts(params: QueryParams | null) {
   // Initialize the client.
   const client = await getClient();
 
-  // Create an index.
-
   const index_name = "product-index";
 
-  var response = await client.search({
+  var searchResp = await client.search({
     index: index_name,
     body: getQueryObj(params),
     pretty: true,
   });
 
-  console.log("Search results:");
-  console.log(response.body);
+  const response = searchResp?.body?.hits?.hits.map((hit: any) => hit._source);
 
-  return response.body;
+  return response ? response : [];
 }
