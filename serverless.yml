@@ -24,4 +24,6 @@ functions:
     handler: src/lambda/query.product.handler/index.handler
   archiveEventHandler:
     handler: src/lambda/archive.event/index.handler
+  errorNotifyHandler:
+    handler: src/lambda/error.notify/index.handler
 

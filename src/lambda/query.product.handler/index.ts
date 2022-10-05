@@ -14,7 +14,7 @@ type QueryParams = {
 };
 
 exports.handler = async (event: APIGatewayEvent) => {
-  console.log("Event: ", event);
+  console.error("Event: ", event);
   const params = parseParams(event.queryStringParameters);
   const resp = await getProducts(params);
   return {
